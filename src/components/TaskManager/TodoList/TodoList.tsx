@@ -6,7 +6,7 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import Checkbox from "@mui/material/Checkbox";
 import IconButton from "@mui/material/IconButton";
-import BookmarkAddIcon from "@mui/icons-material/BookmarkAdd";
+import DeleteIcon from "@mui/icons-material/Delete";
 import { socket } from "../../../services/socket";
 import { Card, CardContent, Typography } from "@mui/material";
 
@@ -32,7 +32,6 @@ export default function TodoList() {
   useEffect(() => {
     function onConnect() {
       setIsConnected(true);
-      console.log("connected");
     }
 
     function onDisconnect() {
@@ -44,8 +43,10 @@ export default function TodoList() {
   }, []);
 
   const handleToggle = (task: Object) => () => {
-    console.log("Change <<<<");
     socket.emit("taskUpdate", { ...task, isDone: true });
+  };
+  const deleteItem = (task: Object) => () => {
+    socket.emit("taskUpdate", { ...task, visible: false });
   };
 
   return (
@@ -57,38 +58,46 @@ export default function TodoList() {
         <List
           sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}
         >
-          {list.map((task) => {
-            const { value } = task;
-            const labelId = `checkbox-list-label-${value}`;
-            return (
-              <ListItem
-                key={value}
-                secondaryAction={
-                  <IconButton edge="end" aria-label="comments">
-                    <BookmarkAddIcon />
-                  </IconButton>
-                }
-                disablePadding
-              >
-                <ListItemButton
-                  role={undefined}
-                  onClick={handleToggle(task)}
-                  dense
+          {!list.length ? (
+            <>Empty</>
+          ) : (
+            list.map((task) => {
+              const { value } = task;
+              const labelId = `checkbox-list-label-${value}`;
+              return (
+                <ListItem
+                  key={value}
+                  secondaryAction={
+                    <IconButton
+                      edge="end"
+                      aria-label="comments"
+                      onClick={deleteItem(task)}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  }
+                  disablePadding
                 >
-                  <ListItemIcon>
-                    <Checkbox
-                      edge="start"
-                      checked={false}
-                      tabIndex={-1}
-                      disableRipple
-                      inputProps={{ "aria-labelledby": labelId }}
-                    />
-                  </ListItemIcon>
-                  <ListItemText id={labelId} primary={value} />
-                </ListItemButton>
-              </ListItem>
-            );
-          })}
+                  <ListItemButton
+                    role={undefined}
+                    onClick={handleToggle(task)}
+                    dense
+                  >
+                    <ListItemIcon>
+                      <Checkbox
+                        edge="start"
+                        checked={false}
+                        tabIndex={-1}
+                        disableRipple
+                        inputProps={{ "aria-labelledby": labelId }}
+                      />
+                    </ListItemIcon>
+                    <ListItemText id={labelId} primary={value} />
+                  </ListItemButton>
+                </ListItem>
+              );
+            })
+          )}
         </List>
       </CardContent>
     </Card>
