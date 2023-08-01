@@ -19,11 +19,14 @@ export default function NewTaskForm() {
     setNewValue(value);
   }, []);
 
-  const onKeyDown = useCallback((e: any) => {
-    if (e.key === "Enter") {
-      createNewTask();
-    }
-  }, []);
+  const onKeyDown = useCallback(
+    (e: any) => {
+      if (e.key === "Enter") {
+        createNewTask();
+      }
+    },
+    [inputValue]
+  );
   const createNewTask = useCallback(() => {
     socket.emit("addNewTask", { value: inputValue });
     setNewValue("");
