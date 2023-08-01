@@ -19,6 +19,11 @@ export default function NewTaskForm() {
     setNewValue(value);
   }, []);
 
+  const onKeyDown = useCallback((e: any) => {
+    if (e.key === "Enter") {
+      createNewTask();
+    }
+  }, []);
   const createNewTask = useCallback(() => {
     socket.emit("addNewTask", { value: inputValue });
     setNewValue("");
@@ -33,18 +38,11 @@ export default function NewTaskForm() {
       setIsConnected(false);
     }
 
-    function onFooEvent(value: string) {
-      console.log("onFooEvent", value);
-    }
-
     socket.on("connect", onConnect);
     socket.on("disconnect", onDisconnect);
-    socket.on("onMessage1", onFooEvent);
-    socket.emit("init", { data: "init" });
     return () => {
       socket.off("connect", onConnect);
       socket.off("disconnect", onDisconnect);
-      socket.off("foo", onFooEvent);
     };
   }, []);
 
@@ -61,6 +59,7 @@ export default function NewTaskForm() {
         onChange={onChange}
         label="Task name"
         disabled={!isConnected}
+        onKeyDown={onKeyDown}
       />
       <Button variant="contained" onClick={createNewTask}>
         Add

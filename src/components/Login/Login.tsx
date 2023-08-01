@@ -1,5 +1,7 @@
 import { Button, Stack, TextField } from "@mui/material";
 import React, { ChangeEvent, useCallback, useState } from "react";
+import { socket } from "../../services/socket";
+import { keyboardKey } from "@testing-library/user-event";
 
 export default function Login({ onLogin }: { onLogin: () => void }) {
   const [login, setLogin] = useState("");
@@ -21,8 +23,15 @@ export default function Login({ onLogin }: { onLogin: () => void }) {
     if (data?.token) {
       onLogin();
       setShow(false);
+      socket.emit("init", { data: "init" });
     }
   }, [login, pass]);
+
+  const onKeyDown = useCallback((e: any) => {
+    if (e.key === "Enter") {
+      tryLoggedIn();
+    }
+  }, []);
   if (!show) {
     return <></>;
   }
@@ -45,6 +54,7 @@ export default function Login({ onLogin }: { onLogin: () => void }) {
           label="Pass"
           type="password"
           onChange={onChangePass}
+          onKeyDown={onKeyDown}
         />
         <Button variant="contained" onClick={tryLoggedIn}>
           Login
